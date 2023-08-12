@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace PrimeiraAPI.Model
 {
-    public class Entity //
+    public class Entity 
     {
 
         [Key]

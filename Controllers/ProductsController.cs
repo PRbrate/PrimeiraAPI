@@ -28,7 +28,32 @@ namespace PrimeiraAPI.Controllers
             return product;
         }
 
+        [HttpGet("{id}")]
+        public async Task<Product> GetbyId(int id)
+        {
+            Product produto = await _databaseContext.Products.FindAsync(id);
+            return produto;
+        }
 
+        [HttpDelete("{id}")]
+        public async Task<Product> Delete(int id)
+        {
+            Product produto = await _databaseContext.Products.FindAsync(id);
+            _databaseContext.Products.Remove(produto);
+            await _databaseContext.SaveChangesAsync();
+            return produto;
+        }
+
+        [HttpPut("UpdateProduct")]
+        public Product Update(Product product, int id)
+        {
+            if (product.Id == id)
+            {
+                _databaseContext.Products.Update(product);
+                _databaseContext.SaveChangesAsync();
+            }
+            return product;
+        }
 
     }
 }
