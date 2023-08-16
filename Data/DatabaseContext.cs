@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Data
@@ -12,6 +13,8 @@ namespace PrimeiraAPI.Data
         }
          
         public DbSet<Product> Products { get; set; }
-
+        public  DbSet<Departament> Departaments { get; set;}
+        public DbSet<Category> Categories { get; set; }
+        public  DbSet<Employee> Employees { get; set; }
     }
 }

@@ -5,6 +5,8 @@ using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Controllers
 {
+    [Route("api/[controller]")]
+    [ApiController]
     public class ProductsController : ControllerBase
     {
         private readonly DatabaseContext _databaseContext;
@@ -14,7 +16,7 @@ namespace PrimeiraAPI.Controllers
 
         }
 
-        [HttpGet("GetProducts")]
+        [HttpGet]
         public async Task<List<Product>> Get()
         {
             return await _databaseContext.Products.ToListAsync();
@@ -44,10 +46,10 @@ namespace PrimeiraAPI.Controllers
             return produto;
         }
 
-        [HttpPut("UpdateProduct")]
+        [HttpPut("{id}")]
         public Product Update(Product product, int id)
         {
-            if (product.Id == id)
+            if (id == product.Id)
             {
                 _databaseContext.Products.Update(product);
                 _databaseContext.SaveChangesAsync();
