@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Controllers
@@ -16,24 +17,65 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Employee>> GetEmployees() 
-        { 
-            return await _databaseContext.Employees.ToListAsync();
+        public async Task<List<EmployeeDTO>> GetEmployees()
+        {
+            List<Employee> employees = await _databaseContext.Employees.Include(e=>e.Departament).ToListAsync();
+            List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
+
+            foreach (var employee in employees)
+            {
+                var department = _databaseContext.Departaments.FirstOrDefault(d =>d.Id==employee.DepatmentId);
+                var employeeDTO = new EmployeeDTO(
+                    employee.Id
+                    , employee.Cpf
+                    , employee.Name
+                    , employee.DateNasc
+                    , employee.DepatmentId
+                    , department?.Name
+                    );
+                employeeDTOs.Add(employeeDTO);
+            }
+
+            //employeeDTOs = employees.Select(employee => new EmployeeDTO(
+            //        employee.Id
+            //        , employee.Cpf
+            //        , employee.Name
+            //        , employee.DateNasc
+            //        , employee.DepatmentId
+            //        , employee.Departament?.Name
+            //        )).ToList();
+
+            return employeeDTOs;
         }
 
         [HttpGet("{id}")]
-        public async Task<Employee> GetEmployees(int id)
+        public async Task<EmployeeDTO> GetEmployees(int id)
         {
             Employee func = await _databaseContext.Employees.FindAsync(id);
-            return func;
+            EmployeeDTO employeeDTO = new EmployeeDTO(
+                func.Id,
+                func.Cpf,
+                func.Name,
+                func.DateNasc,
+                func.DepatmentId,
+                func.Departament?.Name
+                );
+            return employeeDTO;
         }
 
         [HttpPost]
-        public Employee CreateEmployees(Employee funcionary)
+        public EmployeeDTO CreateEmployees([FromBody] EmployeeDTO employeeDTO)
         {
-            _databaseContext.Employees.Add(funcionary);
+            Employee employee = new Employee()
+            {
+                Cpf = employeeDTO.Cpf,
+                Name = employeeDTO.Name,
+                DateNasc = employeeDTO.DateNasc,
+                DepatmentId = employeeDTO.DepatmentId,
+            };
+            _databaseContext.Employees.Add(employee);
             _databaseContext.SaveChangesAsync();
-            return funcionary;
+            return employeeDTO;
         }
 
         [HttpPut("{id}")]

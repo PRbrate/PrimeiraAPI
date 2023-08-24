@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Controllers
@@ -16,42 +17,66 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Departament>> GetDepartaments() 
+        public async Task<List<DepartmentDTO>> GetDepartaments()
         {
-            return await _databaseContext.Departaments.ToListAsync();
+            List<Department> departments = await _databaseContext.Departaments.ToListAsync();
+            List<DepartmentDTO> departmentDTOs = new List<DepartmentDTO>();
+
+            departmentDTOs = departments.Select(department => new DepartmentDTO(
+                department.Id,
+                department.Name,
+                department.Description
+                )).ToList();
+            return departmentDTOs;
         }
 
         [HttpGet("{id}")]
-        public async Task<Departament> GetDepartanebtId(int id)
+        public  DepartmentDTO GetDepartanebtId(int id)
         {
-            Departament departament = await _databaseContext.Departaments.FindAsync(id);
-            return departament;
+            Department departament = new Department();
+            var department =  _databaseContext.Departaments.FirstOrDefault(d => d.Id == id);
+            DepartmentDTO departmentDTO = new DepartmentDTO()
+            {
+                Name = department.Name, 
+                Description = department.Description,
+            };
+            return departmentDTO;
+
         }
 
         [HttpPost]
-        public Departament CreateDepartament([FromBody] Departament departament)
+        public DepartmentDTO CreateDepartament([FromBody] DepartmentDTO departamentDTO)
         {
-            _databaseContext.Departaments.Add(departament);
+            Department department = new Department()
+            {
+                Name = departamentDTO.Name,
+                Description = departamentDTO.Description,
+            };
+            _databaseContext.Departaments.Add(department);
             _databaseContext.SaveChangesAsync();
-            return departament;
+            return departamentDTO;
+
         }
 
         [HttpPut("{id}")]
 
-        public Departament UpdateDepartament(Departament departament, int id)
+        public DepartmentDTO UpdateDepartament(DepartmentDTO departamentDTO, int id)
         {
-            if (id == departament.Id)
+
+            Department department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == id);
+            
+            if (id == department.Id)
             {
-                _databaseContext.Departaments.Update(departament);
+                _databaseContext.Departaments.Update(department);
                 _databaseContext.SaveChangesAsync();
             }
-            return departament;
+            return departamentDTO;
         }
 
         [HttpDelete("{id}")]
-        public async Task<Departament> DeleteDepartament(int id)
+        public async Task<Department> DeleteDepartament(int id)
         {
-            Departament departament = await _databaseContext.Departaments.FindAsync(id);
+            Department departament = await _databaseContext.Departaments.FindAsync(id);
             _databaseContext.Departaments.Remove(departament);
             await _databaseContext.SaveChangesAsync();
             return departament;

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Controllers
@@ -17,25 +18,60 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<Product>> Get()
+        public async Task<List<ProductDTO>> Get()
         {
-            return await _databaseContext.Products.ToListAsync();
-        }
+            List<Product> products = await _databaseContext.Products.Include(p => p.Category).ToListAsync();
+            List<ProductDTO> productsDTOs = new List<ProductDTO>();
 
-        [HttpPost("CreateProducts")]
-        public Product Post([FromBody] Product product)
-        {
-            _databaseContext.Products.Add(product);
-            _databaseContext.SaveChangesAsync();
-            return product;
+            foreach (var product in products)
+            {
+                var category = _databaseContext.Products.FirstOrDefault(c => c.Id == product.CategoryId);
+                var productsDTO = new ProductDTO(
+                    product.Id,
+                    product.Description,
+                    product.Value,
+                    product.Quantity,
+                    product.CategoryId,
+                    category.Name
+                    );
+                productsDTOs.Add( productsDTO );
+            }
+
+            return productsDTOs;
         }
 
         [HttpGet("{id}")]
-        public async Task<Product> GetbyId(int id)
+        public ProductDTO GetProductDTO(int id)
         {
-            Product produto = await _databaseContext.Products.FindAsync(id);
-            return produto;
+            Product produto = new Product();
+            produto = _databaseContext.Products.FirstOrDefault(p => p.Id == id);
+            ProductDTO productDTO = new ProductDTO()
+            {
+                Id = produto.Id,
+                Name = produto.Name,
+                Description = produto.Description,
+                Value = produto.Value,
+                Quantity = produto.Quantity,
+            };
+            return productDTO;
         }
+
+        [HttpPost("CreateProducts")]
+        public ProductDTO Post([FromBody] ProductDTO productDTO)
+        {
+            Product product = new Product()
+            {
+                Name = productDTO.Name,
+                Description = productDTO.Description,
+                Value = productDTO.Value,
+                Quantity = productDTO.Quantity
+            };
+
+            _databaseContext.Products.Add(product);
+            _databaseContext.SaveChangesAsync();
+            return productDTO;
+        }
+
 
         [HttpDelete("{id}")]
         public async Task<Product> Delete(int id)
@@ -47,14 +83,16 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public Product Update(Product product, int id)
+        public ProductDTO Update(ProductDTO productDTO, int id)
         {
+            Product product = _databaseContext.Products.FirstOrDefault(p => p.Id == id);
+
             if (id == product.Id)
             {
                 _databaseContext.Products.Update(product);
                 _databaseContext.SaveChangesAsync();
             }
-            return product;
+            return productDTO;
         }
 
     }
