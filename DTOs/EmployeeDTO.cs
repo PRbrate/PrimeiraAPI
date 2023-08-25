@@ -2,13 +2,13 @@
 
 namespace PrimeiraAPI.DTOs
 {
-    public class EmployeeDTO:Entity
+    public class EmployeeDTO : Entity
     {
         public EmployeeDTO()
         {
-            
+
         }
-        public EmployeeDTO(int id, string cpf, string name, DateTime date, int depatmentId, string departmentName)
+        public EmployeeDTO(int id, string cpf, string name, DateTime date, int depatmentId, string departmentName/*, double salary*/)
         {
             Id = id;
             Cpf = cpf;
@@ -16,11 +16,13 @@ namespace PrimeiraAPI.DTOs
             DateNasc = date;
             DepatmentId = depatmentId;
             DepartmentName = departmentName;
+            //Salary = salary;
         }
         public string Cpf { get; set; }
         public string Name { get; set; }
         public DateTime DateNasc { get; set; }
         public int DepatmentId { get; set; }
         public string DepartmentName { get; set; }
+        //public double Salary { get; set; }
     }
 }

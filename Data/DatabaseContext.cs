@@ -12,15 +12,15 @@ namespace PrimeiraAPI.Data
 
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Employee>()
-                .HasOne(e => e.Departament)
-                .WithMany()
-                .OnDelete(DeleteBehavior.ClientSetNull);
+        //protected override void Onmodelcreating(ModelBuilder modelbuilder)
+        //{
+        //    modelbuilder.Entity<Employee>()
+        //        .HasOne(e => e.Departament)
+        //        .WithMany()
+        //        .OnDelete(DeleteBehavior.ClientSetNull);
 
-            base.OnModelCreating(modelBuilder);
-        }
+        //    base.OnModelCreating(modelbuilder);
+        //}
 
         public DbSet<Product> Products { get; set; }
         public  DbSet<Department> Departaments { get; set;}

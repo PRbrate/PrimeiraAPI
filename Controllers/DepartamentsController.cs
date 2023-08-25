@@ -41,7 +41,7 @@ namespace PrimeiraAPI.Controllers
                 Description = department.Description,
             };
             return departmentDTO;
-
+                
         }
 
         [HttpPost]
