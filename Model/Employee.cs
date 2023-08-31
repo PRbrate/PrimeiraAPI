@@ -34,6 +34,6 @@ namespace PrimeiraAPI.Model
     {
         JovemAprendiz,
         CLT,
-        PJ
+        PJ 
     }
 }
