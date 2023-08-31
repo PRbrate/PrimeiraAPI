@@ -24,12 +24,12 @@ namespace PrimeiraAPI.Controllers
             {
                 employees = employees.Where(e => e.DepartmentId == departmentId).ToList();
             }
-           
+
             List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
 
             foreach (var employee in employees)
             {
-                var department = _databaseContext.Departaments.FirstOrDefault(d =>d.Id==employee.DepartmentId);
+                var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
                 var employeeDTO = new EmployeeDTO(
                     employee.Id
                     , employee.Cpf
@@ -37,63 +37,118 @@ namespace PrimeiraAPI.Controllers
                     , employee.DateNasc
                     , employee.DepartmentId
                     , department?.Name
-                    //, employee.Salary
+                    , employee.Salary
+                    , employee.Age
+                    , employee.OfficeId
+         
+        
                     );
                 employeeDTOs.Add(employeeDTO);
             }
 
-            //employeeDTOs = employees.Select(employee => new EmployeeDTO(
-            //        employee.Id
-            //        , employee.Cpf
-            //        , employee.Name
-            //        , employee.DateNasc
-            //        , employee.DepatmentId
-            //        , employee.Departament?.Name
-            //        )).ToList();
+            return employeeDTOs;
+        }
+
+        [HttpGet("Salary")]
+        public async Task<List<EmployeeDTO>> GetEmployeesbySalary(int? departmentId)
+        {
+            List<Employee> employees = await _databaseContext.Employees.ToListAsync();
+
+            employees = await _databaseContext.Employees.ToListAsync();
+            employees = employees.Where(e => e.Salary >= 1000 & e.Salary <= 4000).ToList();
+
+
+            List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
+
+            foreach (var employee in employees)
+            {
+                var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
+                var employeeDTO = new EmployeeDTO(
+                    employee.Id
+                    , employee.Cpf
+                    , employee.Name
+                    , employee.DateNasc
+                    , employee.DepartmentId
+                    , department?.Name
+                    , employee.Salary
+                    , employee.Age
+                    , employee.OfficeId
+                    );
+                employeeDTOs.Add(employeeDTO);
+            }
 
             return employeeDTOs;
         }
 
-        //[HttpGet("{id}")]
-        //public async Task<EmployeeDTO> GetEmployeesForId(int id)
-        //{
-        //    Employee func = await _databaseContext.Employees.FindAsync(id);
-        //    EmployeeDTO employeeDTO = new EmployeeDTO(
-        //        func.Id,
-        //        func.Cpf,
-        //        func.Name,
-        //        func.DateNasc,
-        //        func.DepatmentId
-        //        //func.Departament?.Name
-        //        //,func.Salary
-        //        );
-        //    return employeeDTO;
-        //}
+        [HttpGet("search")]
+        public async Task<EmployeeDTO> GetByName(string name)
+        {
+
+            Employee employee = await _databaseContext.Employees.FirstOrDefaultAsync(e => e.Name == name);
+            EmployeeDTO employeeDTO = new EmployeeDTO
+               (
+                   employee.Id,
+                   employee.Cpf,
+                   employee.Name,
+                   employee.DateNasc,
+                   employee.DepartmentId,
+                   employee.Departament?.Name,
+                   employee.Salary,
+                   employee.Age,
+                   employee.OfficeId
+               );
+            return employeeDTO;
+        }
+
+
+        [HttpGet("{id}")]
+        public async Task<EmployeeDTO> GetEmployeesForId(int id)
+        {
+            Employee func = await _databaseContext.Employees.FindAsync(id);
+            EmployeeDTO employeeDTO = new EmployeeDTO(
+                func.Id,
+                func.Cpf,
+                func.Name,
+                func.DateNasc,
+                func.DepartmentId,
+                func.Departament.Name,
+                func.Salary,
+                func.Age,
+                func.OfficeId
+                );
+            return employeeDTO;
+        }
 
         [HttpPost]
-        public Employee CreateEmployees([FromBody] Employee employee)
+        public async Task<EmployeeDTO> CreateEmployees([FromBody] EmployeeDTO employeeDTO)
         {
-            //Employee employee = new Employee()
-            //{
-            //    Cpf = employeeDTO.Cpf,
-            //    Name = employeeDTO.Name,
-            //    DateNasc = employeeDTO.DateNasc,
-            //    DepatmentId = employeeDTO.DepatmentId,
-            //};
+
+            Employee employee = new Employee()
+            {
+                Cpf = employeeDTO.Cpf,
+                Name = employeeDTO.Name,
+                DateNasc = employeeDTO.DateNasc,
+                DepartmentId = employeeDTO.DepatmentId,
+                Salary = employeeDTO.Salary,
+                Age = employeeDTO.Age,
+                OfficeId = employeeDTO.OfficeId
+            };
             _databaseContext.Employees.Add(employee);
-            _databaseContext.SaveChangesAsync();
-            return employee;
+            await _databaseContext.SaveChangesAsync();
+            return employeeDTO;
         }
 
         [HttpPut("{id}")]
-        public Employee employee(Employee funcionary, int id)
+        public async Task<Employee> employee(Employee funcionary, int id)
         {
-            if (id == funcionary.Id)
+            Employee employee = _databaseContext.Employees.FirstOrDefault(d => d.Id == id);
+
+            if (id == employee.Id)
             {
-                _databaseContext.Employees.Update(funcionary);
-                _databaseContext.SaveChanges();
+                _databaseContext.Employees.Update(employee);
+                await _databaseContext.SaveChangesAsync();
             }
-            return funcionary;
+            return employee;
         }
 
         [HttpDelete("{id}")]

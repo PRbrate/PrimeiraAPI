@@ -45,7 +45,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPost]
-        public DepartmentDTO CreateDepartament([FromBody] DepartmentDTO departamentDTO)
+        public async Task<DepartmentDTO> CreateDepartament([FromBody] DepartmentDTO departamentDTO)
         {
             Department department = new Department()
             {
@@ -53,14 +53,14 @@ namespace PrimeiraAPI.Controllers
                 Description = departamentDTO.Description,
             };
             _databaseContext.Departaments.Add(department);
-            _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync();
             return departamentDTO;
 
         }
 
         [HttpPut("{id}")]
 
-        public DepartmentDTO UpdateDepartament(DepartmentDTO departamentDTO, int id)
+        public async Task<DepartmentDTO> UpdateDepartament(DepartmentDTO departamentDTO, int id)
         {
 
             Department department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == id);
@@ -68,7 +68,7 @@ namespace PrimeiraAPI.Controllers
             if (id == department.Id)
             {
                 _databaseContext.Departaments.Update(department);
-                _databaseContext.SaveChangesAsync();
+                await _databaseContext.SaveChangesAsync();
             }
             return departamentDTO;
         }

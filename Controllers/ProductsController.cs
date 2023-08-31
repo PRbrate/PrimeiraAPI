@@ -57,7 +57,7 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPost("CreateProducts")]
-        public ProductDTO Post([FromBody] ProductDTO productDTO)
+        public async Task<ProductDTO> Post([FromBody] ProductDTO productDTO)
         {
             Product product = new Product()
             {
@@ -68,18 +68,8 @@ namespace PrimeiraAPI.Controllers
             };
 
             _databaseContext.Products.Add(product);
-            _databaseContext.SaveChangesAsync();
-            return productDTO;
-        }
-
-
-        [HttpDelete("{id}")]
-        public async Task<Product> Delete(int id)
-        {
-            Product produto = await _databaseContext.Products.FindAsync(id);
-            _databaseContext.Products.Remove(produto);
             await _databaseContext.SaveChangesAsync();
-            return produto;
+            return productDTO;
         }
 
         [HttpPut("{id}")]
@@ -93,6 +83,16 @@ namespace PrimeiraAPI.Controllers
                 _databaseContext.SaveChangesAsync();
             }
             return productDTO;
+        }
+
+
+        [HttpDelete("{id}")]
+        public async Task<Product> Delete(int id)
+        {
+            Product produto = await _databaseContext.Products.FindAsync(id);
+            _databaseContext.Products.Remove(produto);
+            await _databaseContext.SaveChangesAsync();
+            return produto;
         }
 
     }

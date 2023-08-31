@@ -6,7 +6,7 @@ namespace PrimeiraAPI.Model
     public class Employee : Entity
     {
         public Employee() { }
-        public Employee(int id, string cpf, string name, DateTime date, int departmentId, double salary)
+        public Employee(int id, string cpf, string name, DateTime date, int departmentId, double salary, int age, Office office)
         {
             Id = id;
             Cpf = cpf;
@@ -14,7 +14,8 @@ namespace PrimeiraAPI.Model
             DateNasc = date;
             DepartmentId = departmentId;
             Salary = salary;
-
+            Age = age;
+            OfficeId = office;
         }
         public string Cpf { get; set; }
         public string Name { get; set; }
@@ -25,5 +26,14 @@ namespace PrimeiraAPI.Model
         public Department Departament { get; set; }
         public int DepartmentId { get; set; }
         public double Salary { get; set; }
+        public int Age { get; set; }
+        public Office OfficeId { get; set; }
+        
+    }
+    public enum Office : ushort
+    {
+        JovemAprendiz,
+        CLT,
+        PJ
     }
 }

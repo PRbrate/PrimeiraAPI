@@ -30,20 +30,20 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpPost]
-        public Category CreateCategory(Category category)
+        public async Task<Category> CreateCategory([FromBody]Category category)
         {
             _databaseContext.Categories.Add(category);
-            _databaseContext.SaveChangesAsync();
+            await _databaseContext.SaveChangesAsync();
             return category;
         }
 
         [HttpPut("{id}")]
-        public Category UpdateCategory(Category category, int id)
+        public async Task <Category> UpdateCategory(Category category, int id)
         {
             if (id == category.Id)
             {
                 _databaseContext.Categories.Update(category);
-                _databaseContext.SaveChangesAsync();
+                await _databaseContext.SaveChangesAsync();
             }
 
             return category;
