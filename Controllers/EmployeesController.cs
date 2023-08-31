@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL.ValueGeneration.Internal;
 using PrimeiraAPI.Data;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
+using PrimeiraAPI.Model.Enums;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -17,89 +19,82 @@ namespace PrimeiraAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<List<EmployeeDTO>> GetEmployees(int? departmentId)
+        public async Task<IActionResult> GetEmployees(int? departmentId, string name, int? initialsalary, int? finalSalary)
         {
-            List<Employee> employees = await _databaseContext.Employees.ToListAsync();
+            List<Employee> employees = await _databaseContext.Employees.Include(e => e.Departament).ToListAsync();
             if (departmentId.HasValue)
             {
                 employees = employees.Where(e => e.DepartmentId == departmentId).ToList();
             }
-
-            List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
-
-            foreach (var employee in employees)
+            if (!string.IsNullOrWhiteSpace(name))
             {
-                var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
-                var employeeDTO = new EmployeeDTO(
-                    employee.Id
-                    , employee.Cpf
-                    , employee.Name
-                    , employee.DateNasc
-                    , employee.DepartmentId
-                    , department?.Name
-                    , employee.Salary
-                    , employee.Age
-                    , employee.OfficeId
-         
-        
-                    );
-                employeeDTOs.Add(employeeDTO);
+                employees = employees.Where(e => e.Name.Contains(name)).ToList();
             }
-
-            return employeeDTOs;
-        }
-
-        [HttpGet("Salary")]
-        public async Task<List<EmployeeDTO>> GetEmployeesbySalary(int? departmentId)
-        {
-            List<Employee> employees = await _databaseContext.Employees.ToListAsync();
-
-            employees = await _databaseContext.Employees.ToListAsync();
-            employees = employees.Where(e => e.Salary >= 1000 & e.Salary <= 4000).ToList();
+            if (initialsalary.HasValue && finalSalary.HasValue)
+            {
+                employees = await _databaseContext.Employees.Where(e => e.Salary >= initialsalary.Value && e.Salary <= finalSalary.Value).ToListAsync();
+            }
 
 
             List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
 
             foreach (var employee in employees)
             {
-                var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
+
                 var employeeDTO = new EmployeeDTO(
                     employee.Id
                     , employee.Cpf
                     , employee.Name
+                    , employee.Age
                     , employee.DateNasc
                     , employee.DepartmentId
-                    , department?.Name
+                    , employee.Departament?.Name
                     , employee.Salary
-                    , employee.Age
                     , employee.OfficeId
+
                     );
                 employeeDTOs.Add(employeeDTO);
             }
 
-            return employeeDTOs;
+            var respose = new ResponseBase<EmployeeDTO>
+            {
+                TotJAprendiz = employeeDTOs.Count(e => e.OfficeId == Office.JovemAprendiz),
+                TotCLT = employeeDTOs.Count(e => e.OfficeId == Office.CLT),
+                TotPJ = employeeDTOs.Count(e => e.OfficeId == Office.PJ),
+                Items = employeeDTOs,
+                TotalItems = employeeDTOs.Count
+            };
+
+            return Ok(respose);
         }
 
-        [HttpGet("search")]
-        public async Task<EmployeeDTO> GetByName(string name)
-        {
+        //[HttpGet("Salary")]
+        //public async Task<List<EmployeeDTO>> GetEmployeesbySalary()
+        //{
+        //    List<Employee> employees = await _databaseContext.Employees.ToListAsync();
 
-            Employee employee = await _databaseContext.Employees.FirstOrDefaultAsync(e => e.Name == name);
-            EmployeeDTO employeeDTO = new EmployeeDTO
-               (
-                   employee.Id,
-                   employee.Cpf,
-                   employee.Name,
-                   employee.DateNasc,
-                   employee.DepartmentId,
-                   employee.Departament?.Name,
-                   employee.Salary,
-                   employee.Age,
-                   employee.OfficeId
-               );
-            return employeeDTO;
-        }
+        //    employees = await _databaseContext.Employees.Where(e => e.Salary >= initialsalary & e.Salary <= finalSalary).ToListAsync();
 
+        //    List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
+
+        //    foreach (var employee in employees)
+        //    {
+        //        var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
+        //        var employeeDTO = new EmployeeDTO(
+        //            employee.Id
+        //            , employee.Cpf
+        //            , employee.Name
+        //            , employee.DateNasc
+        //            , employee.DepartmentId
+        //            , department?.Name
+        //            , employee.Salary
+        //            , employee.OfficeId
+        //            );
+        //        employeeDTOs.Add(employeeDTO);
+        //    }
+
+        //    return employeeDTOs;
+        //}
 
         [HttpGet("{id}")]
         public async Task<EmployeeDTO> GetEmployeesForId(int id)
@@ -113,10 +108,35 @@ namespace PrimeiraAPI.Controllers
                 func.DepartmentId,
                 func.Departament.Name,
                 func.Salary,
-                func.Age,
                 func.OfficeId
                 );
             return employeeDTO;
+        }
+
+        [HttpGet("UploadOffice")]
+        public async Task<List<EmployeeDTO>> UploadOffice()
+        {
+            List<Employee> employees = await _databaseContext.Employees.ToListAsync();
+            List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
+
+            foreach (var employee in employees)
+            {
+                employee.UpdateOffice();
+                var employeeDTO = new EmployeeDTO(
+                    employee.Id
+                    , employee.Cpf
+                    , employee.Name
+                    , employee.DateNasc
+                    , employee.DepartmentId
+                    , employee.Departament?.Name
+                    , employee.Salary
+                    , employee.OfficeId
+                    );
+                employeeDTOs.Add(employeeDTO);
+            }
+            _databaseContext.UpdateRange(employees);
+            await _databaseContext.SaveChangesAsync();
+            return employeeDTOs;
         }
 
         [HttpPost]
@@ -130,21 +150,28 @@ namespace PrimeiraAPI.Controllers
                 DateNasc = employeeDTO.DateNasc,
                 DepartmentId = employeeDTO.DepatmentId,
                 Salary = employeeDTO.Salary,
-                Age = employeeDTO.Age,
-                OfficeId = employeeDTO.OfficeId
             };
+            employee.CountAge();
+            employee.UpdateOffice();
             _databaseContext.Employees.Add(employee);
             await _databaseContext.SaveChangesAsync();
             return employeeDTO;
         }
 
         [HttpPut("{id}")]
-        public async Task<Employee> employee(Employee funcionary, int id)
+        public async Task<Employee> UpdateEmployee(Employee funcionary, int id)
         {
             Employee employee = _databaseContext.Employees.FirstOrDefault(d => d.Id == id);
 
             if (id == employee.Id)
             {
+                employee.Name = funcionary.Name;
+                employee.Cpf = funcionary.Cpf;
+                employee.DateNasc = funcionary.DateNasc;
+                employee.DepartmentId = funcionary.DepartmentId;
+                employee.Salary = funcionary.Salary;
+                employee.CountAge();
+                employee.UpdateOffice();
                 _databaseContext.Employees.Update(employee);
                 await _databaseContext.SaveChangesAsync();
             }
