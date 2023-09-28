@@ -9,13 +9,13 @@ namespace PrimeiraAPI.DTOs
         {
 
         }
-        public EmployeeDTO(int id, string cpf, string name, DateTime date, int depatmentId, string departmentName, double salary, Office office)
+        public EmployeeDTO(int id, string cpf, string name, DateTime date, int departmentId, string departmentName, double salary, Office office)
         {
             Id = id;
             Cpf = cpf;
             Name = name;
             DateNasc = date;
-            DepatmentId = depatmentId;
+            DepartmentId = departmentId;
             DepartmentName = departmentName;
             Salary = salary;
             OfficeId = office;
@@ -28,7 +28,7 @@ namespace PrimeiraAPI.DTOs
             Name = name;
             Age = age;
             DateNasc = date;
-            DepatmentId = depatmentId;
+            DepartmentId = depatmentId;
             DepartmentName = departmentName;
             Salary = salary;
             OfficeId = office;
@@ -38,7 +38,7 @@ namespace PrimeiraAPI.DTOs
         public string Name { get; set; }
         public DateTime DateNasc { get; set; }
         public int MyProperty { get; set; }
-        public int DepatmentId { get; set; }
+        public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
         public double Salary { get; set; }
         public int Age { get; set; }

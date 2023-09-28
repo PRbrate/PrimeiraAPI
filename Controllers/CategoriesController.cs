@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.Data.Repository;
 using PrimeiraAPI.Model;
 
 namespace PrimeiraAPI.Controllers
@@ -9,31 +10,32 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class CategoriesController : ControllerBase
     {
-        private readonly DatabaseContext _databaseContext;
 
-        public CategoriesController(DatabaseContext databaseContext)
+        private readonly CategoryRepository _categoryRepository;
+
+        public CategoriesController(CategoryRepository categoryRepository)
         {
-            _databaseContext = databaseContext;
+            _categoryRepository = categoryRepository;
         }
 
         [HttpGet]
-        public async Task<List<Category>> GetGategory()
+        public async Task<IActionResult> GetGategory()
         {
-            return await _databaseContext.Categories.ToListAsync();
+            var category = await _categoryRepository.GetCategory();
+            return Ok(category);
         }
 
         [HttpGet("{id}")]
         public async Task<Category> GetCategoryId(int Id)
         {
-            Category category = await _databaseContext.Categories.FindAsync(Id);
+            var category = await _categoryRepository.GetCategoryById(Id);
             return category;
         }
 
         [HttpPost]
         public async Task<Category> CreateCategory([FromBody]Category category)
         {
-            _databaseContext.Categories.Add(category);
-            await _databaseContext.SaveChangesAsync();
+            await _categoryRepository.Create(category);
             return category;
         }
 
@@ -42,8 +44,7 @@ namespace PrimeiraAPI.Controllers
         {
             if (id == category.Id)
             {
-                _databaseContext.Categories.Update(category);
-                await _databaseContext.SaveChangesAsync();
+                await _categoryRepository.Update(category);
             }
 
             return category;
@@ -53,9 +54,8 @@ namespace PrimeiraAPI.Controllers
 
         public async Task<Category> DeleteCategory(int id)
         {
-            Category category = await _databaseContext.Categories.FindAsync(id);
-            _databaseContext.Categories.Remove(category);
-            await _databaseContext.SaveChangesAsync();
+            Category category = await _categoryRepository.GetCategoryById(id);
+            await _categoryRepository.Delete(category);
             return category;
         }
     }

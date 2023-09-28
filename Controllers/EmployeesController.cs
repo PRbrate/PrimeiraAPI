@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL.ValueGeneration.Internal;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.Data.Filters;
+using PrimeiraAPI.Data.Repository.Interface;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 using PrimeiraAPI.Model.Enums;
@@ -13,93 +15,23 @@ namespace PrimeiraAPI.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly DatabaseContext _databaseContext;
-        public EmployeesController(DatabaseContext databaseContext)
+        private readonly IEmployeeRepository _employeeRepository;
+        public EmployeesController(IEmployeeRepository employeeRepository)
         {
-            _databaseContext = databaseContext;
+            _employeeRepository = employeeRepository;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetEmployees(int? departmentId, string name, int? initialsalary, int? finalSalary)
-        {
-            List<Employee> employees = await _databaseContext.Employees.Include(e => e.Departament).ToListAsync();
-            if (departmentId.HasValue)
-            {
-                employees = employees.Where(e => e.DepartmentId == departmentId).ToList();
-            }
-            if (!string.IsNullOrWhiteSpace(name))
-            {
-                employees = employees.Where(e => e.Name.Contains(name)).ToList();
-            }
-            if (initialsalary.HasValue && finalSalary.HasValue)
-            {
-                employees = await _databaseContext.Employees.Where(e => e.Salary >= initialsalary.Value && e.Salary <= finalSalary.Value).ToListAsync();
-            }
-
-
-            List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
-
-            foreach (var employee in employees)
-            {
-
-                var employeeDTO = new EmployeeDTO(
-                    employee.Id
-                    , employee.Cpf
-                    , employee.Name
-                    , employee.Age
-                    , employee.DateNasc
-                    , employee.DepartmentId
-                    , employee.Departament?.Name
-                    , employee.Salary
-                    , employee.OfficeId
-
-                    );
-                employeeDTOs.Add(employeeDTO);
-            }
-
-            var respose = new ResponseBase<EmployeeDTO>
-            {
-                TotJAprendiz = employeeDTOs.Count(e => e.OfficeId == Office.JovemAprendiz),
-                TotCLT = employeeDTOs.Count(e => e.OfficeId == Office.CLT),
-                TotPJ = employeeDTOs.Count(e => e.OfficeId == Office.PJ),
-                Items = employeeDTOs,
-                TotalItems = employeeDTOs.Count
-            };
-
-            return Ok(respose);
+        public async Task<IActionResult> GetEmployees([FromQuery] EmployeeFilter employeeFilter)
+        {           
+           var employeeDTOs = await _employeeRepository.GetEmployees(employeeFilter);
+           return Ok(employeeDTOs);
         }
-
-        //[HttpGet("Salary")]
-        //public async Task<List<EmployeeDTO>> GetEmployeesbySalary()
-        //{
-        //    List<Employee> employees = await _databaseContext.Employees.ToListAsync();
-
-        //    employees = await _databaseContext.Employees.Where(e => e.Salary >= initialsalary & e.Salary <= finalSalary).ToListAsync();
-
-        //    List<EmployeeDTO> employeeDTOs = new List<EmployeeDTO>();
-
-        //    foreach (var employee in employees)
-        //    {
-        //        var department = _databaseContext.Departaments.FirstOrDefault(d => d.Id == employee.DepartmentId);
-        //        var employeeDTO = new EmployeeDTO(
-        //            employee.Id
-        //            , employee.Cpf
-        //            , employee.Name
-        //            , employee.DateNasc
-        //            , employee.DepartmentId
-        //            , department?.Name
-        //            , employee.Salary
-        //            , employee.OfficeId
-        //            );
-        //        employeeDTOs.Add(employeeDTO);
-        //    }
-
-        //    return employeeDTOs;
-        //}
 
         [HttpGet("{id}")]
         public async Task<EmployeeDTO> GetEmployeesForId(int id)
         {
-            Employee func = await _databaseContext.Employees.FindAsync(id);
+            var func = await _employeeRepository.GetEmployeeId(id);
             EmployeeDTO employeeDTO = new EmployeeDTO(
                 func.Id,
                 func.Cpf,
@@ -148,20 +80,18 @@ namespace PrimeiraAPI.Controllers
                 Cpf = employeeDTO.Cpf,
                 Name = employeeDTO.Name,
                 DateNasc = employeeDTO.DateNasc,
-                DepartmentId = employeeDTO.DepatmentId,
+                DepartmentId = employeeDTO.DepartmentId,
                 Salary = employeeDTO.Salary,
             };
-            employee.CountAge();
-            employee.UpdateOffice();
-            _databaseContext.Employees.Add(employee);
-            await _databaseContext.SaveChangesAsync();
+
+            await _employeeRepository.Create(employee);
             return employeeDTO;
         }
 
         [HttpPut("{id}")]
-        public async Task<Employee> UpdateEmployee(Employee funcionary, int id)
-        {
-            Employee employee = _databaseContext.Employees.FirstOrDefault(d => d.Id == id);
+        public async Task<IActionResult> UpdateEmployee(Employee funcionary, int id)
+        { 
+            Employee employee = await _employeeRepository.GetEmployeeId(id);
 
             if (id == employee.Id)
             {
@@ -172,19 +102,17 @@ namespace PrimeiraAPI.Controllers
                 employee.Salary = funcionary.Salary;
                 employee.CountAge();
                 employee.UpdateOffice();
-                _databaseContext.Employees.Update(employee);
-                await _databaseContext.SaveChangesAsync();
+                await _employeeRepository.Update(employee);
             }
-            return employee;
+            return Ok(employee);
         }
 
         [HttpDelete("{id}")]
-        public async Task<Employee> DeleteEmployee(int id)
+        public async Task<IActionResult> DeleteEmployee(int id)
         {
-            Employee func = await _databaseContext.Employees.FindAsync(id);
-            _databaseContext.Employees.Remove(func);
-            await _databaseContext.SaveChangesAsync();
-            return func;
+            Employee employee = await _databaseContext.Employees.FindAsync(id);
+            await _employeeRepository.Delete(employee);
+            return Ok();
         }
     }
 }

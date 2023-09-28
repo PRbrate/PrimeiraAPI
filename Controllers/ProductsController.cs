@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PrimeiraAPI.Data;
+using PrimeiraAPI.Data.Repository;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 
@@ -10,41 +11,25 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly DatabaseContext _databaseContext;
-        public ProductsController(DatabaseContext databaseContext)
+        private readonly ProductRepository _productRepository;
+        public ProductsController(ProductRepository productRepository)
         {
-            _databaseContext = databaseContext;
+            _productRepository = productRepository;
 
         }
 
         [HttpGet]
-        public async Task<List<ProductDTO>> Get()
+        public async Task<IActionResult> Get()
         {
-            List<Product> products = await _databaseContext.Products.Include(p => p.Category).ToListAsync();
-            List<ProductDTO> productsDTOs = new List<ProductDTO>();
+            var response = await _productRepository.GetDepartaments();
 
-            foreach (var product in products)
-            {
-                var category = _databaseContext.Products.FirstOrDefault(c => c.Id == product.CategoryId);
-                var productsDTO = new ProductDTO(
-                    product.Id,
-                    product.Description,
-                    product.Value,
-                    product.Quantity,
-                    product.CategoryId,
-                    category.Name
-                    );
-                productsDTOs.Add( productsDTO );
-            }
-
-            return productsDTOs;
+            return Ok(response);
         }
 
         [HttpGet("{id}")]
-        public ProductDTO GetProductDTO(int id)
+        public async Task<ProductDTO> GetProductDTO(int id)
         {
-            Product produto = new Product();
-            produto = _databaseContext.Products.FirstOrDefault(p => p.Id == id);
+            Product produto = await _productRepository.GetProcuctById(id);
             ProductDTO productDTO = new ProductDTO()
             {
                 Id = produto.Id,
@@ -66,21 +51,19 @@ namespace PrimeiraAPI.Controllers
                 Value = productDTO.Value,
                 Quantity = productDTO.Quantity
             };
-
-            _databaseContext.Products.Add(product);
-            await _databaseContext.SaveChangesAsync();
+            
+            await _productRepository.Create(product);
             return productDTO;
         }
 
         [HttpPut("{id}")]
-        public ProductDTO Update(ProductDTO productDTO, int id)
+        public async Task<ProductDTO> Update(ProductDTO productDTO, int id)
         {
-            Product product = _databaseContext.Products.FirstOrDefault(p => p.Id == id);
+            Product product = await _productRepository.GetProcuctById(id);
 
             if (id == product.Id)
             {
-                _databaseContext.Products.Update(product);
-                _databaseContext.SaveChangesAsync();
+                await _productRepository.Update(product);
             }
             return productDTO;
         }
@@ -89,9 +72,8 @@ namespace PrimeiraAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<Product> Delete(int id)
         {
-            Product produto = await _databaseContext.Products.FindAsync(id);
-            _databaseContext.Products.Remove(produto);
-            await _databaseContext.SaveChangesAsync();
+            Product produto = await _productRepository.GetProcuctById(id);
+            await _productRepository.Delete(produto);
             return produto;
         }
 
