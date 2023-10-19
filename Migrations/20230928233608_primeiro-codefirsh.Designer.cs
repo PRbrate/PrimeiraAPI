@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PrimeiraAPI.Data;
@@ -11,9 +12,10 @@ using PrimeiraAPI.Data;
 namespace PrimeiraAPI.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20230928233608_primeiro-codefirsh")]
+    partial class primeirocodefirsh
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,14 +33,10 @@ namespace PrimeiraAPI.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -54,14 +52,10 @@ namespace PrimeiraAPI.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -80,9 +74,7 @@ namespace PrimeiraAPI.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Cpf")
-                        .HasMaxLength(15)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(15)");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("DateNasc")
                         .HasColumnType("timestamp with time zone");
@@ -90,13 +82,8 @@ namespace PrimeiraAPI.Migrations
                     b.Property<int>("DepartmentId")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("DepartmentId1")
-                        .HasColumnType("integer");
-
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("OfficeId")
                         .HasColumnType("integer");
@@ -108,8 +95,6 @@ namespace PrimeiraAPI.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DepartmentId");
-
-                    b.HasIndex("DepartmentId1");
 
                     b.ToTable("Employees");
                 });
@@ -126,14 +111,10 @@ namespace PrimeiraAPI.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(200)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(200)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Name")
-                        .HasMaxLength(100)
-                        .IsUnicode(false)
-                        .HasColumnType("character varying(100)");
+                        .HasColumnType("text");
 
                     b.Property<int>("Quantity")
                         .HasColumnType("integer");
@@ -152,13 +133,10 @@ namespace PrimeiraAPI.Migrations
             modelBuilder.Entity("PrimeiraAPI.Model.Employee", b =>
                 {
                     b.HasOne("PrimeiraAPI.Model.Department", "Departament")
-                        .WithMany()
-                        .HasForeignKey("DepartmentId")
-                        .IsRequired();
-
-                    b.HasOne("PrimeiraAPI.Model.Department", null)
                         .WithMany("Employees")
-                        .HasForeignKey("DepartmentId1");
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Departament");
                 });

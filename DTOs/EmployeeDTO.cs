@@ -9,7 +9,7 @@ namespace PrimeiraAPI.DTOs
         {
 
         }
-        public EmployeeDTO(int id, string cpf, string name, DateTime date, int departmentId, string departmentName, double salary, Office office)
+        public EmployeeDTO(int id, string cpf, string name, DateTime date, int departmentId, string departmentName, decimal salary, Office office)
         {
             Id = id;
             Cpf = cpf;
@@ -21,7 +21,7 @@ namespace PrimeiraAPI.DTOs
             OfficeId = office;
         }
 
-        public EmployeeDTO(int id, string cpf, string name,int age, DateTime date, int depatmentId, string departmentName, double salary, Office office)
+        public EmployeeDTO(int id, string cpf, string name,int age, DateTime date, int depatmentId, string departmentName, decimal salary, Office office)
         {
             Id = id;
             Cpf = cpf;
@@ -40,7 +40,7 @@ namespace PrimeiraAPI.DTOs
         public int MyProperty { get; set; }
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
-        public double Salary { get; set; }
+        public decimal Salary { get; set; }
         public int Age { get; set; }
         public string NameOffice => OfficeId.ToString();
         public Office OfficeId { get; set; }

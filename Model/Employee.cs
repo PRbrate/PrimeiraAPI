@@ -9,7 +9,7 @@ namespace PrimeiraAPI.Model
     public class Employee : Entity
     {
         public Employee() { }
-        public Employee(int id, string cpf, string name, DateTime date, int departmentId, double salary, Office office)
+        public Employee(int id, string cpf, string name, DateTime date, int departmentId, decimal salary, Office office)
         {
             Id = id;
             Cpf = cpf;
@@ -27,7 +27,7 @@ namespace PrimeiraAPI.Model
         [ForeignKey("DepartmentId")]
         public Department Departament { get; set; }
         public int DepartmentId { get; set; }
-        public double Salary { get; set; }
+        public decimal Salary { get; set; }
         public int Age { get; private set; }
         public Office OfficeId { get; set; }
 
