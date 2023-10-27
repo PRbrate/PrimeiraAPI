@@ -1,8 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PrimeiraAPI.Data;
-using PrimeiraAPI.Data.Repository;
 using PrimeiraAPI.Model;
+using PrimeiraAPI.Service.Interface;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -11,31 +9,31 @@ namespace PrimeiraAPI.Controllers
     public class CategoriesController : ControllerBase
     {
 
-        private readonly CategoryRepository _categoryRepository;
+        private readonly ICategoriesService _categoryService;
 
-        public CategoriesController(CategoryRepository categoryRepository)
+        public CategoriesController(ICategoriesService categoryService)
         {
-            _categoryRepository = categoryRepository;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetGategory()
         {
-            var category = await _categoryRepository.GetCategory();
+            var category = await _categoryService.GetCategory();
             return Ok(category);
         }
 
         [HttpGet("{id}")]
         public async Task<Category> GetCategoryId(int Id)
         {
-            var category = await _categoryRepository.GetCategoryById(Id);
+            var category = await _categoryService.GetCategoryById(Id);
             return category;
         }
 
         [HttpPost]
         public async Task<Category> CreateCategory([FromBody]Category category)
         {
-            await _categoryRepository.Create(category);
+            await _categoryService.Create(category);
             return category;
         }
 
@@ -44,7 +42,7 @@ namespace PrimeiraAPI.Controllers
         {
             if (id == category.Id)
             {
-                await _categoryRepository.Update(category);
+                await _categoryService.Update(category);
             }
 
             return category;
@@ -54,8 +52,8 @@ namespace PrimeiraAPI.Controllers
 
         public async Task<Category> DeleteCategory(int id)
         {
-            Category category = await _categoryRepository.GetCategoryById(id);
-            await _categoryRepository.Delete(category);
+            Category category = await _categoryService.GetCategoryById(id);
+            await _categoryService.Delete(category);
             return category;
         }
     }

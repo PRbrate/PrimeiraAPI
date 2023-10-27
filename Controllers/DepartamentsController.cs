@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PrimeiraAPI.Data;
-using PrimeiraAPI.Data.Repository;
-using PrimeiraAPI.Data.Repository.Interface;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
+using PrimeiraAPI.Service.Interface;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -12,17 +9,16 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class DepartamentsController : ControllerBase
     {
-        private readonly DatabaseContext _databaseContext;
-        private readonly IDepartamentsRepository _departamentsRepository;
-        public DepartamentsController(DepartamentsRepository departamentsRepository)
+        private readonly IDepartamentService _departamentsService;
+        public DepartamentsController(IDepartamentService departamentsService)
         {
-            _departamentsRepository = departamentsRepository;
+            _departamentsService = departamentsService;
         }
 
         [HttpGet]
         public async Task<IActionResult> GetDepartaments()
         {
-            var response = await _departamentsRepository.GetDepartaments();
+            var response = await _departamentsService.GetDepartaments();
 
             return Ok(response);
         }
@@ -30,7 +26,7 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id}")]
         public  async Task<DepartmentDTO> GetDepartanebtId(int id)
         {
-            Department departament = await _departamentsRepository.GetDepartamentById(id);
+            Department departament = await _departamentsService.GetDepartamentById(id);
             DepartmentDTO departmentDTO = new DepartmentDTO()
             {
                 Name = departament.Name, 
@@ -47,7 +43,7 @@ namespace PrimeiraAPI.Controllers
                 Name = departamentDTO.Name,
                 Description = departamentDTO.Description,
             };
-            await _departamentsRepository.Create(department);
+            await _departamentsService.Create(department);
             return departamentDTO;
 
         }
@@ -57,11 +53,11 @@ namespace PrimeiraAPI.Controllers
         public async Task<DepartmentDTO> UpdateDepartament(DepartmentDTO departamentDTO, int id)
         {
 
-            Department department = await _departamentsRepository.GetDepartamentById(id);
+            Department department = await _departamentsService.GetDepartamentById(id);
             
             if (id == department.Id)
             {
-                await _departamentsRepository.Update(department);
+                await _departamentsService.Update(department);
             }
             return departamentDTO;
         }
@@ -69,8 +65,8 @@ namespace PrimeiraAPI.Controllers
         [HttpDelete("{id}")]
         public async Task DeleteDepartament(int id)
         {
-            Department departament = await _databaseContext.Departaments.FindAsync(id);
-            await _departamentsRepository.Delete(departament);
+            Department departament = await _departamentsService.GetDepartamentById(id);
+            await _departamentsService.Delete(departament);
         }
     }
 }

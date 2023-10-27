@@ -1,9 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PrimeiraAPI.Data;
-using PrimeiraAPI.Data.Repository;
+using PrimeiraAPI.Data.Filters;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
+using PrimeiraAPI.Service.Interface;
 
 namespace PrimeiraAPI.Controllers
 {
@@ -11,17 +10,17 @@ namespace PrimeiraAPI.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly ProductRepository _productRepository;
-        public ProductsController(ProductRepository productRepository)
-        {
-            _productRepository = productRepository;
+        private readonly IProductsService _productService;
 
+        public ProductsController(IProductsService productService)
+        {
+            _productService = productService;
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var response = await _productRepository.GetDepartaments();
+            var response = await _productService.GetDepartaments();
 
             return Ok(response);
         }
@@ -29,51 +28,74 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ProductDTO> GetProductDTO(int id)
         {
-            Product produto = await _productRepository.GetProcuctById(id);
+            Product produto = await _productService.GetProcuctById(id);
             ProductDTO productDTO = new ProductDTO()
             {
                 Id = produto.Id,
                 Name = produto.Name,
                 Description = produto.Description,
                 Value = produto.Value,
-                Quantity = produto.Quantity,
+                QuantityInStock = produto.QuantityInStock,
             };
             return productDTO;
         }
 
         [HttpPost("CreateProducts")]
-        public async Task<ProductDTO> Post([FromBody] ProductDTO productDTO)
+        public async Task<ProductDTO> Post(ProductDTO productDTO)
         {
             Product product = new Product()
             {
                 Name = productDTO.Name,
                 Description = productDTO.Description,
                 Value = productDTO.Value,
-                Quantity = productDTO.Quantity
+                CategoryId = productDTO.CategoryID,
+                QuantityInStock = productDTO.QuantityInStock
             };
-            
-            await _productRepository.Create(product);
+
+            await _productService.Create(product);
             return productDTO;
         }
 
         [HttpPut("{id}")]
-        public async Task<ProductDTO> Update(ProductDTO productDTO, int id)
+        public async Task<ProductDTO> Update([FromBody] ProductDTO productDTO, int id)
         {
-            Product product = await _productRepository.GetProcuctById(id);
+            Product product = await _productService.GetProcuctById(id);
 
             if (id == product.Id)
             {
-                await _productRepository.Update(product);
+                await _productService.Update(product);
             }
             return productDTO;
         }
 
+        [HttpPut("v2 {id}")]
+        public async Task<Product> AddAndRemove(int id, int? Addquantity, int? RemoveQuantity)
+        {
+
+            Product product = await _productService.GetProcuctById(id);
+
+            if (id == product.Id)
+            {
+                if (Addquantity != null)
+                {
+                    int q = (int)Addquantity;
+                    product.AddStock(q);
+                }
+                if (RemoveQuantity != null)
+                {
+                    int q = (int)RemoveQuantity;
+                    product.RemoveStock(q);
+                }
+                await _productService.Update(product);
+            }
+            return product;
+        }
 
         [HttpDelete("{id}")]
         public async Task<Product> Delete(int id)
         {
-            Product produto = await _productRepository.GetProcuctById(id);
-            await _productRepository.Delete(produto);
+            Product produto = await _productService.GetProcuctById(id);
+            await _productService.Delete(produto);
             return produto;
         }
 

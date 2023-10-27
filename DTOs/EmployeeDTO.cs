@@ -9,18 +9,7 @@ namespace PrimeiraAPI.DTOs
         {
 
         }
-        public EmployeeDTO(int id, string cpf, string name, DateTime date, int departmentId, string departmentName, decimal salary, Office office)
-        {
-            Id = id;
-            Cpf = cpf;
-            Name = name;
-            DateNasc = date;
-            DepartmentId = departmentId;
-            DepartmentName = departmentName;
-            Salary = salary;
-            OfficeId = office;
-        }
-
+       
         public EmployeeDTO(int id, string cpf, string name,int age, DateTime date, int depatmentId, string departmentName, decimal salary, Office office)
         {
             Id = id;

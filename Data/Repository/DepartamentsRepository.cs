@@ -40,7 +40,7 @@ namespace PrimeiraAPI.Data.Repository
 
         public async Task<ResponseBase<DepartmentDTO>> GetDepartaments()
         {
-            List<Department> departments = await _dbContext.Departaments.ToListAsync();
+            var departments = _dbContext.Departaments.AsQueryable();
             List<DepartmentDTO> departmentDTOs = new List<DepartmentDTO>();
 
             departmentDTOs = departments.Select(department => new DepartmentDTO(
@@ -55,7 +55,7 @@ namespace PrimeiraAPI.Data.Repository
                 TotalItems = departmentDTOs.Count
             };
 
-            return response;
+            return await Task.FromResult(response);
         }
 
         public async Task<Department> Update(Department department)

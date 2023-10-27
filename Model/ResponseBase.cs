@@ -16,7 +16,6 @@ namespace PrimeiraAPI.Model
 
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public int? TotPJ { get; set; }
-
         public int TotalItems { get; set; }
 
 

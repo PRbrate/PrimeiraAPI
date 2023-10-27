@@ -20,31 +20,27 @@ namespace PrimeiraAPI.Data.Repository
 
             return product;
         }
-
         public async Task Delete(Product product)
         {
             _dbContext.Products.Remove(product);
             await _dbContext.SaveChangesAsync();
         }
-
         public async Task<Product> GetProcuctById(int id)
         {
             Product produto = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
             return produto;
         }
-
         public async Task<ResponseBase<ProductDTO>> GetDepartaments()
         {
-            List<Product> products = await _dbContext.Products.Include(p => p.Category).ToListAsync();
+            var products = _dbContext.Products.Include(p => p.Category).AsQueryable();
             List<ProductDTO> productsDTOs = new List<ProductDTO>();
-
 
             productsDTOs = products.Select(products => new ProductDTO
             (
                 products.Id,
                 products.Description,
                 products.Value,
-                products.Quantity,
+                products.QuantityInStock,
                 products.CategoryId,
                 products.Name
             )).ToList();
@@ -55,11 +51,11 @@ namespace PrimeiraAPI.Data.Repository
                 TotalItems = productsDTOs.Count
             };
 
-            return respose;
+            return await Task.FromResult(respose);
         }
-
         public async Task<Product> Update(Product product)
         {
+
             _dbContext.Products.Update(product);
             await _dbContext.SaveChangesAsync();
 

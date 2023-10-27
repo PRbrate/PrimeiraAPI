@@ -33,16 +33,16 @@ namespace PrimeiraAPI.Data.Repository
 
         public async Task<ResponseBase<Category>> GetCategory()
         {
-            List<Category> category = await _dbContext.Categories.ToListAsync();
+            var category = _dbContext.Categories.AsQueryable();
 
 
             var response = new ResponseBase<Category>
             {
                 Items = category,
-                TotalItems = category.Count
+                TotalItems = category.Count()
             };
 
-            return response;
+            return await Task.FromResult(response);
         }
 
         public async Task<Category> Update(Category category)
