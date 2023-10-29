@@ -52,16 +52,14 @@ namespace PrimeiraAPI.Model
 
         }
 
-        public int CountAge()
+        public void CalculateAge()
         {
-            var dataAtual = DateTime.Now;
-            Age = dataAtual.Year - DateNasc.Year;
-            if (dataAtual.Month < DateNasc.Month ||
-                (dataAtual.Month <= DateNasc.Month && dataAtual.Day < DateNasc.Day))
-            {
-                Age--;
-            }
-            return Age;
+            var currenteDate = DateTime.Now;
+
+            Age = currenteDate.Year - DateNasc.Year;
+
+            if (currenteDate < DateNasc.AddYears(Age)) Age--;    
+            
         }
 
     }

@@ -18,7 +18,7 @@ namespace PrimeiraAPI.Data.Repository
         }
         public async Task<Employee> Create(Employee employee)
         {
-            employee.CountAge();
+            employee.CalculateAge();
             employee.UpdateOffice();
             _dbContext.Employees.Add(employee);
             await _dbContext.SaveChangesAsync();

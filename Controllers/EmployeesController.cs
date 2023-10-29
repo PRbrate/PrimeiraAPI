@@ -18,9 +18,9 @@ namespace PrimeiraAPI.Controllers
 
         [HttpGet]
         public async Task<IActionResult> GetEmployees([FromQuery] EmployeeFilter employeeFilter)
-        {           
-           var employeeDTOs = await _employeeService.GetEmployees(employeeFilter);
-           return Ok(employeeDTOs);
+        {
+            var employeeDTOs = await _employeeService.GetEmployees(employeeFilter);
+            return Ok(employeeDTOs);
         }
 
         [HttpGet("{id}")]
@@ -69,8 +69,9 @@ namespace PrimeiraAPI.Controllers
         //}
 
         [HttpPost]
-        public async Task<EmployeeDTO> CreateEmployees([FromBody] EmployeeDTO employeeDTO)
+        public async Task<ActionResult<EmployeeDTO>> CreateEmployees([FromBody] EmployeeDTO employeeDTO)
         {
+            if (!ModelState.IsValid) return BadRequest("error");
 
             Employee employee = new Employee()
             {
@@ -87,7 +88,7 @@ namespace PrimeiraAPI.Controllers
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateEmployee(Employee funcionary, int id)
-        { 
+        {
             Employee employee = await _employeeService.GetEmployeeId(id);
 
             if (id == employee.Id)
@@ -97,7 +98,7 @@ namespace PrimeiraAPI.Controllers
                 employee.DateNasc = funcionary.DateNasc;
                 employee.DepartmentId = funcionary.DepartmentId;
                 employee.Salary = funcionary.Salary;
-                employee.CountAge();
+                employee.CalculateAge();
                 employee.UpdateOffice();
                 await _employeeService.Update(employee);
             }
@@ -108,7 +109,7 @@ namespace PrimeiraAPI.Controllers
         public async Task<IActionResult> DeleteEmployee(int id)
         {
             Employee employee = await _employeeService.GetEmployeeId(id);
-            if(employee != null) 
+            if (employee != null)
             {
                 await _employeeService.Delete(employee);
             }
