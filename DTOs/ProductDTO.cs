@@ -24,6 +24,7 @@ namespace PrimeiraAPI.DTOs
             Name = name;
             Description = description;
             Value = value;
+            Quantity = quantity;
             CategoryID = categoryID;
             CategoryName = categoryName;
             QuantityInStock = quantityInSock;
@@ -31,7 +32,8 @@ namespace PrimeiraAPI.DTOs
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Value { get; set; }
-        public decimal TotalValue => Value * QuantityInStock;
+        public int Quantity { get; set; }
+        public decimal TotalValue => Value * Quantity;
         public int CategoryID { get; set; }
         public string CategoryName { get; set; }
         public int QuantityInStock { get; set; }

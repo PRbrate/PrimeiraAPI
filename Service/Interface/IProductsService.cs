@@ -10,5 +10,7 @@ namespace PrimeiraAPI.Service.Interface
         Task<Product> Update(Product product);
         Task Delete(Product product);
         Task<Product> Create(Product product);
+        Task<List<Product>> ImportExcel(IFormFile file);
+        Task<IEnumerable<Product>> SaveExcel(Task<List<Product>> list);
     }
 }

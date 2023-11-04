@@ -30,6 +30,24 @@ namespace PrimeiraAPI.Data.Repository
             Product produto = await _dbContext.Products.FirstOrDefaultAsync(p => p.Id == id);
             return produto;
         }
+
+        public async Task<ProductDTO> GetProcuctId(int id)
+        {
+            Product produto = await _dbContext.Products.Include(p => p.Category).FirstOrDefaultAsync(p => p.Id == id);
+            ProductDTO productDTO = new ProductDTO
+                (produto.Id,
+                produto.Name,
+                produto.Description,
+                produto.Value,
+                produto.Quantity,
+                produto.CategoryId,
+                produto.Category.Name,
+                produto.QuantityInStock
+                );
+
+            return productDTO;
+        }
+
         public async Task<ResponseBase<ProductDTO>> GetDepartaments()
         {
             var products = _dbContext.Products.Include(p => p.Category).AsQueryable();
@@ -38,11 +56,13 @@ namespace PrimeiraAPI.Data.Repository
             productsDTOs = products.Select(products => new ProductDTO
             (
                 products.Id,
+                products.Name,
                 products.Description,
                 products.Value,
-                products.QuantityInStock,
+                products.Quantity,
                 products.CategoryId,
-                products.Name
+                products.Category.Name,
+                products.QuantityInStock
             )).ToList();
 
             var respose = new ResponseBase<ProductDTO>

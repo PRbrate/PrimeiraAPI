@@ -26,17 +26,17 @@ namespace PrimeiraAPI.Controllers
         [HttpGet("{id}")]
         public async Task<EmployeeDTO> GetEmployeesForId(int id)
         {
-            var func = await _employeeService.GetEmployeeId(id);
+            var Employee = await _employeeService.GetEmployeeId(id);
             EmployeeDTO employeeDTO = new EmployeeDTO(
-                func.Id,
-                func.Cpf,
-                func.Name,
-                func.Age,
-                func.DateNasc,
-                func.DepartmentId,
-                func.Departament?.Name,
-                func.Salary,
-                func.OfficeId
+                Employee.Id,
+                Employee.Cpf,
+                Employee.Name,
+                Employee.Age,
+                Employee.DateNasc,
+                Employee.DepartmentId,
+                Employee.Departament?.Name,
+                Employee.Salary,
+                Employee.OfficeId
                 );
             return employeeDTO;
         }

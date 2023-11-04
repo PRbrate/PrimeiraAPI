@@ -7,6 +7,7 @@ namespace PrimeiraAPI.Data.Repository.Interface
     {
         Task<ResponseBase<ProductDTO>> GetDepartaments();
         Task<Product> GetProcuctById(int id);
+        Task<ProductDTO> GetProcuctId(int id);
         Task<Product> Update(Product product);
         Task Delete(Product product);
         Task<Product> Create(Product product);
