@@ -17,7 +17,7 @@ namespace PrimeiraAPI.Data.Mappings
             .IsUnicode(false);
 
             builder.HasOne(e => e.Departament)
-                   .WithMany()
+                   .WithMany(p=> p.Employees)
                    .OnDelete(DeleteBehavior.ClientSetNull);
         }
     }

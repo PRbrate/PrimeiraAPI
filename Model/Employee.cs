@@ -1,8 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using PrimeiraAPI.Model.Enums;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using PrimeiraAPI.Migrations;
-using PrimeiraAPI.Model.Enums;
 
 namespace PrimeiraAPI.Model
 {
