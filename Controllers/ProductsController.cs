@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using PrimeiraAPI.Data.Filters;
 using PrimeiraAPI.DTOs;
 using PrimeiraAPI.Model;
 using PrimeiraAPI.Service.Interface;
@@ -17,6 +16,7 @@ namespace PrimeiraAPI.Controllers
             _productService = productService;
         }
 
+
         [HttpGet]
         public async Task<IActionResult> Get()
         {
@@ -24,6 +24,7 @@ namespace PrimeiraAPI.Controllers
 
             return Ok(response);
         }
+
 
         [HttpGet("{id}")]
         public async Task<ProductDTO> GetProductDTO(int id)
@@ -39,6 +40,7 @@ namespace PrimeiraAPI.Controllers
             };
             return productDTO;
         }
+
 
         [HttpPost("CreateProducts")]
         public async Task<ProductDTO> Post(ProductDTO productDTO)
@@ -56,6 +58,7 @@ namespace PrimeiraAPI.Controllers
             return productDTO;
         }
 
+
         [HttpPut("{id}")]
         public async Task<ProductDTO> Update([FromBody] ProductDTO productDTO, int id)
         {
@@ -68,7 +71,8 @@ namespace PrimeiraAPI.Controllers
             return productDTO;
         }
 
-        [HttpPut("v2 {id}")]
+
+        [HttpPost("{id}")]
         public async Task<Product> AddAndRemove(int id, int? Addquantity, int? RemoveQuantity)
         {
 
@@ -76,20 +80,32 @@ namespace PrimeiraAPI.Controllers
 
             if (id == product.Id)
             {
-                if (Addquantity != null)
+                if (Addquantity != null || RemoveQuantity != null)
                 {
-                    int q = (int)Addquantity;
-                    product.AddStock(q);
+                    if (Addquantity != null)
+                    {
+                        int q = (int)Addquantity;
+                        product.AddStock(q);
+                    }
+                    if (RemoveQuantity != null)
+                    {
+                        int q = (int)RemoveQuantity;
+                        product.RemoveStock(q);
+                    }
+                    await _productService.Update(product);
                 }
-                if (RemoveQuantity != null)
+                else
                 {
-                    int q = (int)RemoveQuantity;
-                    product.RemoveStock(q);
+                    throw new Exception("Você deve passar um valor para a adição ou remoção de itens do estoque!");
                 }
-                await _productService.Update(product);
+            }
+            else
+            {
+                throw new Exception("Não encontramos nenhum produto com o Identificador digitado");
             }
             return product;
         }
+
 
         [HttpDelete("{id}")]
         public async Task<Product> Delete(int id)
@@ -99,5 +115,19 @@ namespace PrimeiraAPI.Controllers
             return produto;
         }
 
+
+        [HttpPost("Entrada-Excel")]
+        public ActionResult InputExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+            {
+                throw new Exception("inválido");
+            }
+
+            var response = _productService.ImportExcel(file);
+            _productService.SaveExcel(response);
+
+            return Ok(response);
+        }
     }
 }

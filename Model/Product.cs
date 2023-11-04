@@ -9,11 +9,12 @@ namespace PrimeiraAPI.Model
         {
         }
 
-        public Product(string name, string description, decimal value, int quantityInStock, int categoryId)
+        public Product(string name, string description, decimal value,int quantity, int quantityInStock, int categoryId)
         {
             Name = name;
             Description = description;
             Value = value;
+            Quantity = quantity;
             QuantityInStock = quantityInStock;
             CategoryId = categoryId;
         }
@@ -24,9 +25,10 @@ namespace PrimeiraAPI.Model
         [JsonIgnore(Condition = JsonIgnoreCondition.Always)]
         [ForeignKey("CategoryId")]
         public Category Category { get; set; }
+        public int Quantity { get; set; }
         public int QuantityInStock { get; set; }
         public int CategoryId { get; set; }
-        public decimal TotalValue => Value * QuantityInStock;
+        public decimal TotalValue => Value * Quantity;
 
         public void AddStock(int quantity) 
         { 
